@@ -1,0 +1,26 @@
+{
+    "name": "Executive",
+    "short_name": "Executive",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "description": "Executive",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/safari-pinned-tab.svg",
+            "type": "image/svg+xml",
+            "sizes": "any"
+        }
+    ]
+}
