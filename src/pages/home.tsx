@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { create } from "zustand";
-import { Button, ButtonGroup, Spinner, TextInput } from "flowbite-react";
+import { Button, ButtonGroup, TextInput } from "flowbite-react";
 import Frame from "../components/frame";
-import { useGetAccountId } from "../hooks";
-import { Campaign } from "../types";
 import { NewsletterComponent } from "../components/NewsLetterBuilder";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "../components/loader";
 
 const API_URL = process.env.API_URL;
 
@@ -18,6 +17,9 @@ const useHomePageStore = create((set) => ({
   setError: (newError: string) => set({ error: newError }),
   pageData: null as any,
   setPageData: (newPageData: any) => set({ pageData: newPageData }),
+  blogImage: null as string | null,
+  setBlogImage: (newBlogImage: string | null) =>
+    set({ blogImage: newBlogImage }),
 }));
 
 interface Section {
@@ -41,6 +43,8 @@ interface HomePageStore {
   setIsLoading: (newIsLoading: boolean) => void;
   error: string;
   setError: (newError: string) => void;
+  blogImage: string | null;
+  setBlogImage: (newBlogImage: string | null) => void;
   pageData: PageData;
   setPageData: (newPageData: PageData) => void;
 }
@@ -180,6 +184,8 @@ const HomePage: React.FC = () => {
     setError,
     pageData,
     setPageData,
+    blogImage,
+    setBlogImage,
   } = useHomePageStore((state) => state) as ReturnType<
     typeof useHomePageStore
   > &
@@ -187,14 +193,7 @@ const HomePage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const [blogImage, setBlogImage] = useState<string | null>(null);
-
-  const [generateNewsletter, setGenerateNewsletter] = useState(false);
-
-  const [generateSocialMediaPosts, setGenerateSocialMediaPosts] =
-    useState(false);
-
-  const accountId = useGetAccountId();
+  const [generating, setGenerating] = useState(false);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Remove "https://" (case-insensitive) from the beginning of the string, if present
@@ -229,19 +228,15 @@ const HomePage: React.FC = () => {
           },
         }
       );
-      console.log(response);
+
       const imageJson = await response.json();
-      const image_url = `${API_URL}${imageJson?.image_url}`;
-      setBlogImage(image_url);
+      const image_url = imageJson?.image_url
+        ? imageJson?.image_url
+        : "/images/dummyImage.png";
+      setBlogImage(image_url ? image_url : "/images/dummyImage.png");
+
       const responseDataJson = await responseData.json();
       const data = responseDataJson.data;
-      console.log({
-        source_url: data?.json_data?.source_url,
-        title: data?.json_data?.title,
-        sections: data?.json_data?.sections,
-        image_sources: data?.image_sources,
-        image_url: image_url,
-      });
       // setIsLoading(false);
       setPageData({
         source_url: data?.source_url,
@@ -264,33 +259,38 @@ const HomePage: React.FC = () => {
     return match ? match[1] : null;
   }
 
-  function generateNewsletterFromContent() {
-    navigate(`/newsletter-config/new`, {
-      state: {
-        campaign: {
-          id: Math.random(),
-          subject: pageData?.title,
-          sent: false,
-          created_at: new Date().toLocaleDateString(),
-          body: "",
-        },
-        title: pageData?.title,
-        components: generateNewsletterFormat(pageData),
-      },
-    });
+  function resetState() {
+    setPageData(null);
+    setBlogImage(null);
+    setUrl("");
+    setError("");
+    setIsLoading(false);
   }
 
-  // useEffect(() => {
-  //   return () => {
-  //     setPageData(null);
-  //     setBlogImage(null);
-  //     setUrl("");
-  //     setError("");
-  //     setIsLoading(false);
-  //     setGenerateNewsletter(false);
-  //     setGenerateSocialMediaPosts(false);
-  //   };
-  // }, []);
+  function generateNewsletterFromContent() {
+    resetState();
+    setGenerating(true);
+    setTimeout(() => {
+      setGenerating(false);
+      navigate(`/newsletter-config/new`, {
+        state: {
+          campaign: {
+            id: Math.random(),
+            subject: pageData?.title,
+            sent: false,
+            created_at: new Date().toLocaleDateString(),
+            body: "",
+          },
+          title: pageData?.title,
+          components: generateNewsletterFormat(pageData),
+        },
+      });
+    }, 500);
+  }
+
+  if (generating) {
+    return <Loader />;
+  }
 
   if (!isLoading && !error && pageData) {
     const domainUrl = `https://${getDomainFromUrl(pageData.source_url)}/`;
@@ -304,12 +304,6 @@ const HomePage: React.FC = () => {
           <Button color="lime" onClick={generateNewsletterFromContent}>
             Generate Newsletter
           </Button>
-          {/* <Button
-            color="lime"
-            onClick={() => setGenerateSocialMediaPosts(true)}
-          >
-            Generate Social Media Posts
-          </Button> */}
         </ButtonGroup>
         <div className="mt-6 w-full max-w-5xl">
           <Frame>
@@ -320,7 +314,7 @@ const HomePage: React.FC = () => {
             />
           </Frame>
         </div>
-        <div className="flex flex-col gap-4 bg-white rounded-lg p-4 max-w-5xl">
+        <div className="flex flex-col gap-4 bg-white rounded-lg p-4 max-w-5xl dark:bg-gray-800 dark:text-white">
           <div key="source_url">
             <span className="font-bold">Source:</span>{" "}
             <Link
@@ -365,7 +359,7 @@ const HomePage: React.FC = () => {
                 return (
                   <div
                     key={image_source}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-2 border-2 border-gray-200 rounded-lg p-2 bg-white dark:border-gray-700 dark:rounded-lg dark:p-2 dark:bg-black"
                     title={imageUrl}
                   >
                     <img
