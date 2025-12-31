@@ -6,8 +6,8 @@ import {
   ModalFooter,
   ModalHeader,
 } from "flowbite-react";
-import EmailConfigForm from "../Forms/EmailConfigForm";
-import { useUserStore } from "../../../../stores";
+import EmailConfigForm from "../NewsLetterBuilder/components/Forms/EmailConfigForm";
+import { useUserStore } from "../../stores";
 
 function EmailConfigModal() {
   const {

@@ -4,6 +4,8 @@ import { NewsletterComponent } from "../../types";
 import { SubscribersSelect, EmailProviderSelect } from "../Dropdowns";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useUserStore } from "../../../../stores";
+import { Button, Tooltip } from "flowbite-react";
 
 const API_URL = process.env.API_URL;
 
@@ -20,6 +22,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
   onClose,
   components,
 }) => {
+  const { isAuthenticated } = useUserStore();
   const subscribersSelectRef = useRef<any>(null);
   const emailProviderSelectRef = useRef<any>(null);
   const { id } = useParams();
@@ -103,16 +106,33 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
             />
           </div>
           <div className="w-2/5 py-4 px-6 border-t border-gray-300 dark:border-gray-700 flex flex-col gap-3">
-            <EmailProviderSelect ref={emailProviderSelectRef} />
-            <SubscribersSelect ref={subscribersSelectRef} />
-            {isEdit ? (
-              <button
+            <EmailProviderSelect
+              ref={emailProviderSelectRef}
+              disabled={!isAuthenticated}
+            />
+            <SubscribersSelect
+              ref={subscribersSelectRef}
+              disabled={!isAuthenticated}
+            />
+            <Tooltip
+              content={
+                isAuthenticated
+                  ? isEdit
+                    ? "Send"
+                    : "Save to send"
+                  : "Login/Signup to send a newsletter"
+              }
+              animation="duration-1000"
+              className="self-end mt-auto"
+            >
+              <Button
+                disabled={!isAuthenticated || !isEdit}
                 className="py-2.5 px-6 border-none rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 bg-lime-600 dark:bg-lime-500 text-white hover:bg-lime-700 dark:hover:bg-lime-600 hover:-translate-y-0.5 self-end mt-auto"
                 onClick={handleSend}
               >
                 Send
-              </button>
-            ) : null}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>

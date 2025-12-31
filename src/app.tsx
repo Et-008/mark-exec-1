@@ -5,7 +5,7 @@ import * as Pages from "./pages";
 import { useUserStore } from "./stores";
 import ProtectedRoute from "./auth/protectedRoute";
 import { ToastContainer } from "react-toastify";
-import ModalComponents from "./components/NewsLetterBuilder/components/Modals";
+import ModalComponents from "./components/Modals";
 import Loader from "./components/loader";
 
 export const App: React.FC = () => {
@@ -29,16 +29,16 @@ export const App: React.FC = () => {
               element={<ProtectedRoute element={<Pages.NewsletterConfig />} />}
             />
             <Route
-              path="/newsletter-config/new"
-              element={<ProtectedRoute element={<Pages.NewsletterConfig />} />}
-            />
-            <Route
               path="/newsletters"
               element={<ProtectedRoute element={<Pages.NewslettersList />} />}
             />
             <Route
               path="/settings"
               element={<ProtectedRoute element={<Pages.SettingsPage />} />}
+            />
+            <Route
+              path="/newsletter-config/new"
+              element={<Pages.NewsletterConfig />}
             />
             <Route path="/" element={<Pages.HomePage />} />
             <Route path="*" element={<Pages.NotFound />} />

@@ -6,8 +6,8 @@ import {
   ModalFooter,
   ModalHeader,
 } from "flowbite-react";
-import SubscriberConfigForm from "../Forms/SubscriberConfigForm";
-import { useUserStore } from "../../../../stores";
+import SubscriberConfigForm from "../NewsLetterBuilder/components/Forms/SubscriberConfigForm";
+import { useUserStore } from "../../stores";
 
 function SubscriberConfigModal() {
   const {

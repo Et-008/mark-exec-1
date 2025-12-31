@@ -32,6 +32,7 @@ interface UserState {
   user?: User;
   isAuthenticated: boolean;
   isLoading: boolean;
+  authModalOpen: boolean;
   newEmailConfigModalOpen: boolean;
   newEmailConfigModalId?: string;
   newSubscriberConfigModalOpen: boolean;
@@ -48,6 +49,7 @@ interface UserState {
     open: boolean,
     subscriber?: Subscriber
   ) => void;
+  setAuthModalOpen: (open: boolean) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -56,12 +58,13 @@ export const useUserStore = create<UserState>()(
       user: undefined,
       isAuthenticated: false,
       isLoading: false,
+      authModalOpen: false,
       newEmailConfigModalOpen: false,
       newEmailConfigModalId: undefined,
       newSubscriberConfigModalOpen: false,
       subscriberConfig: undefined,
       setUser: (user) => set({ user, isAuthenticated: true }),
-
+      setAuthModalOpen: (state: boolean) => set({ authModalOpen: state }),
       updateUser: (updates) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
@@ -90,6 +93,7 @@ export const useUserStore = create<UserState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        authModalOpen: state.authModalOpen,
         newEmailConfigModalOpen: state.newEmailConfigModalOpen,
         newEmailConfigModalId: state.newEmailConfigModalId,
         newSubscriberConfigModalOpen: state.newSubscriberConfigModalOpen,

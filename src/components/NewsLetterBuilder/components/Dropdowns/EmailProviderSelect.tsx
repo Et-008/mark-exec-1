@@ -22,8 +22,12 @@ interface EmailProvider {
 
 interface EmailProviderSelectProps {
   ref: React.RefObject<any>;
+  disabled: boolean;
 }
-const EmailProviderSelect: React.FC<EmailProviderSelectProps> = ({ ref }) => {
+const EmailProviderSelect: React.FC<EmailProviderSelectProps> = ({
+  ref,
+  disabled,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [emailProviders, setEmailProviders] = useState<any[]>([]);
   const [selectedEmailProvider, setSelectedEmailProvider] = useState<
@@ -74,6 +78,7 @@ const EmailProviderSelect: React.FC<EmailProviderSelectProps> = ({ ref }) => {
         Email Provider
       </h2>
       <Select
+        isDisabled={disabled}
         options={emailProviders}
         value={selectedEmailProvider}
         onChange={(

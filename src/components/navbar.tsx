@@ -66,13 +66,11 @@ const NavbarComponent: React.FC<{ children: React.ReactNode }> = ({
         <NavbarCollapse>
           <MyNavLink to="/">Home</MyNavLink>
           <MyNavLink to="/subscription">Subscribers</MyNavLink>
+          <MyNavLink to="/newsletters">Newsletters</MyNavLink>
           {isAuthenticated && (
-            <>
-              <MyNavLink to="/newsletters">Newsletters</MyNavLink>
-              <MyNavLink to="/settings">
-                <SlidersHorizontalIcon size={20} />
-              </MyNavLink>
-            </>
+            <MyNavLink to="/settings">
+              <SlidersHorizontalIcon size={20} />
+            </MyNavLink>
           )}
           <DarkThemeToggle />
         </NavbarCollapse>

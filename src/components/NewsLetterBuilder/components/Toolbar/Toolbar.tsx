@@ -54,11 +54,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   const accountId = useGetAccountId();
 
-  const { isAuthenticated } = useUserStore();
+  const { isAuthenticated, setAuthModalOpen } = useUserStore();
 
   const navigate = useNavigate();
 
   const { id } = useParams();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const isEdit = id && id !== "new";
 
@@ -79,6 +81,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const handleSave = () => {
     const json = exportToJSON();
     const method = isEdit ? "update" : "create";
+    setIsSaving(true);
     try {
       fetch(`${API_URL}/newsletter/${method}/`, {
         method: "POST",
@@ -95,9 +98,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           }),
         }),
       })
-        .then((res) => {
+        .then((res) => res.json())
+        .then((res: any) => {
           if (res) {
-            navigate(`/newsletters`);
+            if (isEdit) {
+              navigate(`/newsletters`);
+            } else {
+              navigate(`/newsletter-config/${res?.newsletter_id}`);
+              onPreview();
+            }
+            toast.success("Newsletter created successfully!");
           }
         })
         .catch((err) => {
@@ -107,6 +117,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         });
     } catch {
       toast.error("Something went wrong, pleease try again!");
+    } finally {
+      setIsSaving(false);
     }
     // const blob = new Blob([json], { type: "application/json" });
     // const url = URL.createObjectURL(blob);
@@ -262,26 +274,47 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <DownloadIcon size={20} />
           </button>
         </Tooltip>
-        {isAuthenticated && (
-          <>
-            <Button
-              color="lime"
-              onClick={handleSave}
-              className="flex items-center gap-2"
-            >
-              <SaveIcon size={20} /> {isEdit ? "Update" : "Create"}
-            </Button>
-            {isEdit ? (
-              <Button
-                color="lime"
-                onClick={onPreview}
-                className="flex items-center gap-2"
-              >
-                <Send size={20} /> Send
-              </Button>
-            ) : null}
-          </>
-        )}
+        <Tooltip
+          content={
+            isAuthenticated
+              ? "Create and send"
+              : "Login/Signup to create or send a newsletter"
+          }
+          animation="duration-1000"
+        >
+          <Button
+            color="lime"
+            onClick={() => {
+              if (isAuthenticated) {
+                handleSave();
+              } else {
+                setAuthModalOpen(true);
+              }
+            }}
+            disabled={isSaving}
+            className="flex items-center gap-2"
+          >
+            <SaveIcon size={20} />{" "}
+            {isAuthenticated
+              ? isEdit
+                ? isSaving
+                  ? "Updating..."
+                  : "Update"
+                : isSaving
+                ? "Saving..."
+                : "Save and send"
+              : "Login/Signup to save and send a newsletter"}
+          </Button>
+        </Tooltip>
+        {isEdit ? (
+          <Button
+            color="lime"
+            onClick={onPreview}
+            className="flex items-center gap-2"
+          >
+            <Send size={20} /> Send
+          </Button>
+        ) : null}
       </div>
     </div>
   );

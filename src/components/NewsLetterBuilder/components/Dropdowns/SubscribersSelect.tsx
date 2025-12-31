@@ -2,9 +2,10 @@ import React, { useEffect, useImperativeHandle, useState } from "react";
 import Select from "react-select";
 import { useGetAccountId } from "../../../../hooks";
 
-const SubscribersSelect: React.FC<{ ref: React.RefObject<any> }> = ({
-  ref,
-}) => {
+const SubscribersSelect: React.FC<{
+  ref: React.RefObject<any>;
+  disabled: boolean;
+}> = ({ ref, disabled }) => {
   const accountId = useGetAccountId();
   const [subscribers, setSubscribers] = useState<any[]>([]);
   // State to store the selected values (initialized as an empty array)
@@ -57,6 +58,7 @@ const SubscribersSelect: React.FC<{ ref: React.RefObject<any> }> = ({
       </h2>
       <Select
         isMulti // This prop enables multi-selection
+        isDisabled={disabled}
         options={subscribers}
         value={selectedOptions}
         onChange={handleChange}
