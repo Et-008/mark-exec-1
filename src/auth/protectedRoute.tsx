@@ -12,6 +12,7 @@ import {
 import { useUserStore } from "../stores";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const API_URL = process.env.API_URL;
 
@@ -136,14 +137,35 @@ function LoginModal({
           value={form.email}
           onChange={handleChange}
         />
-        <TextInput
-          type="password"
-          placeholder="Password"
-          className="w-full"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-        />
+        {(() => {
+          const [showPassword, setShowPassword] = React.useState(false);
+          return (
+            <div className="relative flex items-center">
+              <TextInput
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                onClick={() => setShowPassword((prev) => !prev)}
+                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                style={{ background: "none", border: "none", padding: 0 }}
+              >
+                {showPassword ? (
+                  <EyeIcon size={20} />
+                ) : (
+                  <EyeOffIcon size={20} />
+                )}
+              </button>
+            </div>
+          );
+        })()}
 
         <div className="flex flex-row gap-2">
           <Checkbox

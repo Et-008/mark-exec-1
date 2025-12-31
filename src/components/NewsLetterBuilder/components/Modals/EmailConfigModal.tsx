@@ -32,7 +32,10 @@ function EmailConfigModal() {
           : "Create New Email Config"}
       </ModalHeader>
       <ModalBody>
-        <EmailConfigForm id={newEmailConfigModalId} />
+        <EmailConfigForm
+          id={newEmailConfigModalId}
+          handleClose={() => setNewEmailConfigModalOpen(false)}
+        />
       </ModalBody>
     </Modal>
   );

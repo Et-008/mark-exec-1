@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { RotateCcwIcon } from "lucide-react";
 import { Tooltip, Button, Checkbox, TextInput, Spinner } from "flowbite-react";
+import { pick } from "lodash";
 
 const API_URL = process.env.API_URL;
 
@@ -50,22 +51,28 @@ function convertTextToCamelCase(text: string) {
     .replace(/ /g, " ");
 }
 
-function EmailConfigForm({ id }: { id?: string }) {
+function EmailConfigForm({
+  id,
+  handleClose,
+}: {
+  id?: string;
+  handleClose: () => void;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [emailConfig, setEmailConfig] = useState<
     CreateEmailInput | EmailConfig
   >({
     id: Math.random(),
     name: "",
-    from_email: "",
     host: "",
-    port: 0,
+    port: 587,
+    from_email: "",
+    reply_to: "",
     username: "",
     password: "",
-    use_tls: false,
+    use_tls: true,
     use_ssl: false,
     from_name: "",
-    reply_to: "",
     is_primary: false,
   });
   const [originalEmailConfig, setOriginalEmailConfig] = useState<
@@ -78,10 +85,10 @@ function EmailConfigForm({ id }: { id?: string }) {
     is_primary: false,
     provider: "",
     host: "",
-    port: 0,
+    port: 587,
     username: "",
     password: "",
-    use_tls: false,
+    use_tls: true,
     use_ssl: false,
     from_name: "",
     reply_to: "",
@@ -125,76 +132,101 @@ function EmailConfigForm({ id }: { id?: string }) {
     // ensure CSRF cookie exists (e.g., fetch '/auth/csrf/' once after login)
     const csrftoken = getCookie("csrftoken");
 
-    const payload = {
-      name: "Work SMTP",
-      from_email: "team@lang-q.com",
-      host: "smtp.zoho.in",
-      port: 587,
-      username: "team@lang-q.com",
-      password: "PHrT2NqBFwy1", // write-only, not returned
-      use_tls: true,
-      use_ssl: false,
-      from_name: "Lang-Q",
-      reply_to: "team@lang-q.com",
-      is_primary: true,
-    };
+    // const payload = {
+    //   name: "Work SMTP",
+    //   from_email: "team@lang-q.com",
+    //   host: "smtp.zoho.in",
+    //   port: 587,
+    //   username: "team@lang-q.com",
+    //   password: "PHrT2NqBFwy1", // write-only, not returned
+    //   use_tls: true,
+    //   use_ssl: false,
+    //   from_name: "Lang-Q",
+    //   reply_to: "team@lang-q.com",
+    //   is_primary: true,
+    // };
+
+    const payload = pick(emailConfig, [
+      "name",
+      "from_email",
+      "host",
+      "port",
+      "username",
+      "password",
+      "use_tls",
+      "use_ssl",
+      "from_name",
+      "reply_to",
+      "is_primary",
+    ]);
 
     console.log(payload);
 
-    // const res = await fetch(`${API_URL}/config/create/`, {
-    //   method: "POST",
-    //   credentials: "include", // send session cookie
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     "X-CSRFToken": csrftoken || "",
-    //   },
-    //   body: JSON.stringify(payload),
-    // });
-
-    // if (!res.ok) {
-    //   const err = await res.text();
-    //   throw new Error(`Create failed: ${res.status} ${err}`);
-    // }
-
-    // const json = await res.json(); // { data: EmailConfig }
-    // return json.data;
+    const res = await fetch(`${API_URL}/config/create/`, {
+      method: "POST",
+      credentials: "include", // send session cookie
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken || "",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.data) {
+          toast.success("Email configured Successfully!");
+          handleClose();
+          fetchEmailConfig();
+        } else {
+          toast.error(data.errors.__all__.join(", "));
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Something went wrong, pleease try again!");
+      });
   }
 
-  async function updateEmailConfig(id: string, updates: any) {
+  async function updateEmailConfig() {
     const csrftoken = getCookie("csrftoken");
 
-    // Example payload (partial updates allowed)
-    const payload = {
-      name: "Work SMTP (updated)",
-      from_email: "me@domain.com",
-      host: "smtp.zoho.in",
-      port: 587,
-      username: "me@domain.com",
-      password: "new-app-password", // write-only; sets password_encrypted
-      use_tls: true,
-      use_ssl: false,
-      is_active: true,
-      is_primary: true, // will unset others for this user
-    };
+    // Compare emailConfig and originalEmailConfig and get only the changed property key as array of keys
+    const changedKeys = Object.keys(emailConfig).filter(
+      (key) =>
+        emailConfig[key as keyof (CreateEmailInput | EmailConfig)] !==
+        originalEmailConfig?.[key as keyof (CreateEmailInput | EmailConfig)]
+    );
 
-    const res = await fetch(`/config/${id}/`, {
-      method: "PATCH", // or 'POST'
+    const updates = pick(emailConfig, changedKeys);
+
+    console.log(updates);
+
+    fetch(`${API_URL}/config/update/`, {
+      method: "POST",
       credentials: "include",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken || "",
       },
-      body: JSON.stringify({ ...payload, ...updates }),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Update failed: ${res.status} ${err}`);
-    }
-    const json = await res.json(); // { data: EmailConfig }
-    return json.data;
+      body: JSON.stringify(updates),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.data) {
+          toast.success("Email updated Successfully!");
+          fetchEmailConfig();
+        } else {
+          toast.error(data.errors.__all__.join(", "));
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Something went wrong, pleease try again!");
+      });
   }
 
   async function verifyEmailConfig(id: number) {
@@ -288,7 +320,11 @@ function EmailConfigForm({ id }: { id?: string }) {
             <Button
               color="lime"
               onClick={() => {
-                createEmailConfig();
+                if (id) {
+                  updateEmailConfig();
+                } else {
+                  createEmailConfig();
+                }
               }}
               disabled={isDisabled()}
             >

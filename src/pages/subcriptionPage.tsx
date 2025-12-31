@@ -119,7 +119,7 @@ const SubcriptionPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-wrap items-center relative">
+    <div className="relative">
       <div key="NewSubscriber" className="ml-auto absolute top-0 right-0">
         <Button color="lime" onClick={toggleAddSubscriber}>
           Add Subscriber
