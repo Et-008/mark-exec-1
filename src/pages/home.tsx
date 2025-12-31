@@ -211,13 +211,13 @@ const HomePage: React.FC = () => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/html-to-image/`, {
-        method: "POST",
-        body: JSON.stringify({ url: `https://${url}` }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // const response = await fetch(`${API_URL}/html-to-image/`, {
+      //   method: "POST",
+      //   body: JSON.stringify({ url: `https://${url}` }),
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
       const responseData = await fetch(
         `${API_URL}/fetch-html-and-convert-to-json/`,
         {
@@ -229,10 +229,14 @@ const HomePage: React.FC = () => {
         }
       );
 
-      const imageJson = await response.json();
-      const image_url = imageJson?.image_url
-        ? imageJson?.image_url
-        : "/images/dummyImage.png";
+      // const imageJson = await response.json();
+      // const image_url = imageJson?.image_url
+      //   ? imageJson?.image_url
+      //   : "/images/dummyImage.png";
+
+      const image_url =
+        "https://plus.unsplash.com/premium_photo-1721830791498-ec809d9d94ec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+      // "https://images.unsplash.com/photo-1751212426830-63169ebe8775?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
       setBlogImage(image_url ? image_url : "/images/dummyImage.png");
 
       const responseDataJson = await responseData.json();
@@ -309,7 +313,7 @@ const HomePage: React.FC = () => {
           <Frame>
             <img
               src={blogImage ? blogImage : "/images/dummyImage.png"}
-              alt="Preview"
+              alt="Under maintenance"
               className="w-full h-full object-cover"
             />
           </Frame>
