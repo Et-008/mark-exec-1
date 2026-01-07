@@ -1,17 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { TextInput, Button, ButtonGroup } from "flowbite-react";
+import React, { useState } from "react";
+import { TextInput, Button } from "flowbite-react";
 import { useGetAccountId } from "../../../../hooks";
 import { toast } from "react-toastify";
+import { Subscriber } from "../../../../types";
 
 const API_URL = process.env.API_URL;
-
-interface Subscriber {
-  id: number;
-  email: string;
-  name?: string;
-  is_active: boolean;
-  subscribed_on: string;
-}
 
 function SubscriberConfigForm({
   subscriber: subscriberFromProps,
@@ -28,7 +21,12 @@ function SubscriberConfigForm({
       email: "",
       name: "",
       is_active: true,
-      subscribed_on: new Date().toISOString(),
+      subscription: {
+        active: true,
+        subscribed_at: new Date().toISOString(),
+        unsubscribed_at: null,
+        resubscribed_at: null,
+      },
     }
   );
   const [loading, setLoading] = useState(false);

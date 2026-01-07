@@ -15,4 +15,17 @@ interface NewsLetter {
   sent: boolean;
 }
 
-export type { Campaign, NewsLetter };
+interface Subscriber {
+  id: number;
+  email: string;
+  name: string;
+  is_active: boolean;
+  subscription: {
+    active: boolean;
+    subscribed_at: string;
+    unsubscribed_at: string | null;
+    resubscribed_at: string | null;
+  };
+}
+
+export type { Campaign, NewsLetter, Subscriber };

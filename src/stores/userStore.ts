@@ -1,13 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
-export interface Subscriber {
-  id: number;
-  email: string;
-  name?: string;
-  is_active: boolean;
-  subscribed_on: string;
-}
+import { Subscriber } from "../types";
 
 export interface User {
   id: string;
